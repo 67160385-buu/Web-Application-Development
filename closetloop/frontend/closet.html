@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Virtual Closet — ClosetLoop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Prompt:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* 🎨 พาเลตสีใหม่: Rose Silk & Blue Velvet */
+    --ink: #03153D;            /* Blue Velvet (สีหลัก/เข้ม) */
+    --paper: #FDF9FA;          /* ขาวอมชมพูอ่อนๆ สบายตา */
+    --paper-2: #F7EBED;        /* ชมพูอ่อน สำหรับพื้นหลังรอง */
+    --mustard: #F4AEBE;        /* Rose Silk (สีเน้น/สว่าง) */
+    --mustard-dark: #E092A3;   /* Rose Silk โทนเข้มขึ้นนิดนึงตอน Hover */
+    --sage: #8B9BB4;           /* สีเทาอมน้ำเงิน สำหรับเส้น/องค์ประกอบรอง */
+    --sage-dark: #3A4C70;      /* สีเทาอมน้ำเงินเข้ม สำหรับข้อความรอง */
+    --rose: #F4AEBE;           /* Rose Silk */
+    --charcoal: #03153D;       /* สีตัวหนังสือหลัก ใช้ Blue Velvet ให้อ่านง่าย */
+    --line: #E8D8DB;           /* สีเส้นขอบอมชมพู */
+    --white: #FFFFFF;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{ background:var(--paper); color:var(--charcoal); font-family:'Prompt', sans-serif; }
+  h1,h2,h3{ font-family:'Montserrat', 'Prompt', sans-serif; color:var(--ink); font-weight:600; }
+  a{color:inherit; text-decoration:none;}
+  .eyebrow{ font-family:'IBM Plex Mono',monospace; font-size:0.75rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--sage);}
+
+  /* nav (shared) */
+  .line-nav{ position:sticky; top:0; z-index:50; background:var(--paper); border-bottom:1px solid var(--line);}
+  .line-nav .wrap{ max-width:1280px; margin:0 auto; padding:0 32px; display:flex; align-items:center; justify-content:space-between; height:76px; position:relative;}
+  .brand{ font-family:'Montserrat',serif; font-weight:700; font-size:1.2rem; display:flex; align-items:center; gap:8px; z-index:2; background:var(--paper); padding-right:12px; letter-spacing: 1px;}
+  .tags{ display:flex; gap:20px; z-index:2; background:var(--paper); padding-left:12px;}
+  .tag-pin{ position:relative; display:flex; flex-direction:column; align-items:center; padding-top:12px;}
+  .tag-pin::before{ content:""; position:absolute; top:0; width:7px; height:7px; border-radius:50%; background:var(--ink); box-shadow:0 0 0 2px var(--paper);}
+  .tag-chip{ font-family:'Prompt', sans-serif; font-size:0.85rem; font-weight:500; background:var(--white); border:1px solid var(--line); border-radius:4px 4px 8px 8px; padding:6px 12px; transition: all 0.2s;}
+  .tag-chip.active{ border-color:var(--mustard-dark); box-shadow:2px 3px 0 var(--mustard); color: var(--ink); }
+  .tag-chip:hover:not(.active){ border-color: var(--mustard); }
+  
+  .cta-btn{ font-family:'Prompt', sans-serif; font-size:0.85rem; font-weight:500; background:var(--ink); color:var(--paper); border:none; border-radius:100px; padding:10px 20px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition: background 0.2s;}
+  .cta-btn:hover{ background:var(--mustard); color: var(--ink); }
+
+  .wrap{ max-width:1280px; margin:0 auto; padding:0 32px;}
+
+  .page-head{ padding:40px 0 28px; display:flex; justify-content:space-between; align-items:flex-end; gap:20px; flex-wrap:wrap;}
+  .page-head h1{ font-size:clamp(1.6rem,2.6vw,2.1rem); color: var(--mustard); text-transform: uppercase; }
+  .page-head p.desc { color: var(--sage); font-size: 0.95rem; margin-top: 8px; }
+  
+  .stat-row{ display:flex; gap:26px; flex-wrap:wrap; }
+  .stat{ font-family:'Prompt', sans-serif; font-size:0.85rem; color:var(--sage);}
+  .stat b{ display:block; font-family:'Montserrat', sans-serif; font-size:1.5rem; color:var(--ink); font-weight:600;}
+
+  .layout{ display:grid; grid-template-columns:1fr 380px; gap:28px; padding-bottom:70px; align-items:start;}
+  @media (max-width:1020px){ .layout{ grid-template-columns:1fr; } }
+
+  /* Filter row */
+  .filters{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:22px;}
+  .filter-pill{
+    font-family:'Prompt', sans-serif; font-size:0.85rem; padding:8px 16px; border-radius:100px;
+    border:1px solid var(--line); background:var(--white); color: var(--charcoal); cursor:pointer; transition:all .15s ease;
+  }
+  .filter-pill.active{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
+  .filter-pill:hover:not(.active){ border-color:var(--mustard); color: var(--mustard); }
+
+  /* Closet grid */
+  .closet-panel{ background:var(--white); border:1px solid var(--line); border-radius:12px; padding:26px; }
+  .panel-title{ display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
+  .panel-title h2{ font-size:1.15rem; }
+  .add-btn{ font-family:'Prompt', sans-serif; font-size:0.85rem; background:transparent; border:1.5px dashed var(--ink); color:var(--ink); border-radius:100px; padding:8px 16px; cursor:pointer; transition: all 0.2s;}
+  .add-btn:hover{ background:var(--mustard); color:var(--ink); border-style:solid; border-color: var(--mustard);}
+
+  .grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+  @media (max-width:800px){ .grid{ grid-template-columns:repeat(2,1fr);} }
+  .garment{
+    border:1px solid var(--line); border-radius:6px 6px 14px 14px; overflow:hidden; cursor:pointer;
+    background:var(--paper-2); position:relative; transition:transform .16s ease, box-shadow .16s ease;
+  }
+  .garment:hover{ transform:translateY(-4px); box-shadow:0 12px 20px -12px rgba(127, 22, 51, 0.3); border-color: var(--mustard); }
+  .garment.selected{ outline:2px solid var(--mustard-dark); outline-offset:-2px; }
+  .garment .swatch{ height:120px; }
+  .garment .pin{ position:absolute; top:8px; left:50%; transform:translateX(-50%); width:6px; height:6px; border-radius:50%; background:var(--ink); opacity:.3;}
+  .garment .info{ padding:10px 10px 12px; background: var(--white); border-top: 1px solid var(--line); height: 100%;}
+  .garment .cat{ font-family:'IBM Plex Mono',monospace; font-size:0.65rem; color:var(--sage); text-transform:uppercase; letter-spacing:.06em;}
+  .garment .name{ font-size:0.85rem; font-weight:500; color:var(--ink); margin-top:2px;}
+  .garment .checkmark{ position:absolute; top:8px; right:8px; width:20px; height:20px; border-radius:50%; background:var(--mustard); display:none; align-items:center; justify-content:center; font-size:0.7rem; color:var(--ink); font-weight:700;}
+  .garment.selected .checkmark{ display:flex; }
+
+  /* AI panel - ปรับสีให้เข้ากับ Plum */
+  .ai-panel{
+    background:var(--ink); color:var(--white); border-radius:12px; padding:28px;
+    position:sticky; top:96px; border: 1px solid var(--sage-dark);
+  }
+  .ai-panel .eyebrow{ color:var(--mustard); }
+  .ai-panel h2{ color:var(--paper); font-size:1.3rem; margin:8px 0 4px; }
+  .ai-panel p.sub{ color:var(--line); font-size:0.86rem; margin-bottom:22px;}
+
+  .field-group{ margin-bottom:16px; }
+  .field-label{ font-family:'IBM Plex Mono',monospace; font-size:0.7rem; text-transform:uppercase; letter-spacing:.08em; color:var(--line); display:block; margin-bottom:8px;}
+  .chip-row{ display:flex; gap:8px; flex-wrap:wrap; }
+  
+  /* ตัวเลือก AI ในกล่อง Plum */
+  .chip-opt{ font-family:'Prompt', sans-serif; font-size:0.8rem; padding:7px 14px; border-radius:100px; border:1px solid var(--sage); background:var(--sage-dark); color:var(--paper); cursor:pointer; transition: all 0.2s;}
+  .chip-opt.on{ background:var(--mustard); border-color:var(--mustard); color:var(--ink); font-weight:600;}
+  .chip-opt:hover:not(.on){ border-color: var(--mustard); color: var(--mustard); }
+
+  .loop-btn{
+    width:100%; margin-top:22px; padding:15px; border-radius:100px; border:none;
+    background:var(--mustard); color:var(--ink); font-family:'Prompt', sans-serif; font-weight:600; font-size:1rem;
+    display:flex; align-items:center; justify-content:center; gap:10px; cursor:pointer;
+    transition:transform .15s ease, background .2s;
+  }
+  .loop-btn:hover{ transform:translateY(-2px); background: var(--mustard-dark); }
+  .loop-btn svg{ transition:transform .5s ease; stroke: var(--ink); }
+  .loop-btn:active svg{ transform:rotate(180deg); }
+
+  .outfit-result{ margin-top:24px; border-top:1px solid var(--sage); padding-top:22px; }
+  .outfit-result .tag{ font-family:'Prompt', sans-serif; font-weight: 500; font-size:0.75rem; color:var(--mustard); margin-bottom:10px; display:block;}
+  .outfit-pieces{ display:flex; gap:10px; margin-bottom:14px;}
+  .outfit-piece{ flex:1; height:90px; border-radius:6px; border: 1px solid var(--line); }
+  .outfit-note{ font-style:italic; font-size:0.9rem; color:var(--paper); line-height:1.5;}
+  
+  .fb-row{ display:flex; gap:10px; margin-top:16px;}
+  .fb-btn{ flex:1; padding:9px; border-radius:8px; border:1px solid var(--sage); background:var(--sage-dark); color:var(--paper); font-size:0.8rem; font-family: 'Prompt', sans-serif; cursor:pointer; transition: all 0.2s;}
+  .fb-btn:hover{ border-color:var(--mustard); color: var(--mustard); }
+
+  /* sell/exchange bar */
+  .action-bar{
+    margin-top:22px; background:var(--white); border:1px solid var(--line); border-radius:12px; padding:22px 26px;
+    display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+  }
+  .action-bar .txt strong{ color:var(--ink); font-size: 1.1rem; }
+  .action-bar .txt p{ font-size:0.9rem; color:var(--sage); margin-top:4px;}
+  .action-buttons{ display:flex; gap:10px; }
+  .btn-outline{ font-family:'Prompt', sans-serif; font-size:0.85rem; padding:10px 18px; border-radius:100px; border:1.5px solid var(--ink); color:var(--ink); background:transparent; cursor:pointer; transition: all 0.2s;}
+  .btn-outline:hover{ background:var(--ink); color:var(--white); }
+  .btn-solid{ font-family:'Prompt', sans-serif; font-size:0.85rem; padding:10px 18px; border-radius:100px; border:none; background:var(--mustard); color:var(--ink); font-weight: 500; cursor:pointer; transition: all 0.2s;}
+  .btn-solid:hover{ background:var(--mustard-dark); color:var(--white); }
+</style>
+</head>
+<body>
+
+<nav class="line-nav">
+  <div class="wrap">
+    <div class="brand">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 4a5 5 0 1 0 5 5" stroke="var(--mustard)" stroke-width="2.4" stroke-linecap="round"/><path d="M17 3.4v5.2h-5.2" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      CLOSETLOOP
+    </div>
+    <div class="tags">
+      <div class="tag-pin"><a class="tag-chip" href="index.html">หน้าแรก</a></div>
+      <div class="tag-pin"><a class="tag-chip active" href="closet.html">ตู้เสื้อผ้า</a></div>
+      <div class="tag-pin"><a class="tag-chip" href="#ai">AI แมตช์ชุด</a></div>
+      <div class="tag-pin"><a class="tag-chip" href="index.html#market">ตลาดซื้อขาย</a></div>
+    </div>
+    <a class="cta-btn" href="#">โปรไฟล์ของฉัน</a>
+  </div>
+</nav>
+
+<main class="wrap">
+  <div class="page-head">
+    <div>
+      <p class="eyebrow">Virtual Closet</p>
+      <h1>My Virtual Closet</h1>
+      <p class="desc">อัปโหลดรูปภาพเสื้อผ้าของคุณเพื่อสร้างตู้เสื้อผ้าดิจิทัลส่วนตัว</p>
+    </div>
+    <div class="stat-row">
+      <div class="stat">ชิ้นทั้งหมด<b id="StatTotal">8</b></div>
+      <div class="stat">ยังไม่ได้ใส่ 30 วัน<b id="StatUnused">2</b></div>
+      <div class="stat">พร้อมปล่อยขาย<b id="StatSell">1</b></div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div>
+      <div class="filters">
+        <button class="filter-pill active" data-filter="all">ทั้งหมด</button>
+        <button class="filter-pill" data-filter="top">เสื้อด้านบน</button>
+        <button class="filter-pill" data-filter="bottom">กางเกง/กระโปรง</button>
+        <button class="filter-pill" data-filter="outer">เสื้อคลุม</button>
+        <button class="filter-pill" data-filter="acc">เครื่องประดับ</button>
+      </div>
+
+      <div class="closet-panel">
+        <div class="panel-title">
+          <h2>เลือกชิ้นที่อยากใส่วันนี้</h2>
+          <button class="add-btn" onclick="alert('เปิดกล้อง / อัปโหลดรูปเสื้อผ้าชิ้นใหม่')">+ เพิ่มรูปเสื้อผ้า</button>
+        </div>
+        <div class="grid" id="garmentGrid">
+          <!-- ข้อมูลจำลองเสื้อผ้าจะถูกแทรกที่นี่ด้วย JS -->
+        </div>
+      </div>
+
+      <div class="action-bar">
+        <div class="txt">
+          <strong>มีเสื้อผ้า 2 ชิ้นไม่ได้ใส่มานานแล้ว</strong>
+          <p>ปล่อยขายหรือแลกเปลี่ยนเพื่อให้เสื้อผ้าหมุนเวียนต่อสิ!</p>
+        </div>
+        <div class="action-buttons">
+          <button class="btn-outline" onclick="alert('เปิดฟอร์มโพสต์แลกเปลี่ยน')">โพสต์แลกเปลี่ยน</button>
+          <button class="btn-solid" onclick="alert('เปิดฟอร์มตั้งราคาขาย')">ตั้งราคาขาย</button>
+        </div>
+      </div>
+    </div>
+
+    <aside class="ai-panel" id="ai">
+      <p class="eyebrow">AI Outfit Matching</p>
+      <h2>ให้ AI ช่วยจัดชุดให้</h2>
+      <p class="sub">เลือกจากตู้เสื้อผ้าซ้ายมือ หรือให้ AI สุ่มแมตช์ให้ทั้งหมด</p>
+
+      <div class="field-group">
+        <span class="field-label">โอกาส / สถานที่</span>
+        <div class="chip-row">
+          <button class="chip-opt on" data-group="occasion">Lookไปคาเฟ่</button>
+          <button class="chip-opt" data-group="occasion">Lookไปทำงาน</button>
+          <button class="chip-opt" data-group="occasion">Lookไปเดท</button>
+          <button class="chip-opt" data-group="occasion">Lookสบายๆ</button>
+          <button class="chip-opt" data-group="occasion">Minimal Style</button>
+          <button class="chip-opt" data-group="occasion">Y2K Style</button>
+        </div>
+      </div>
+      <div class="field-group">
+        <span class="field-label">สภาพอากาศวันนี้</span>
+        <div class="chip-row">
+          <button class="chip-opt on" data-group="weather">☀️ อากาศร้อน</button>
+          <button class="chip-opt" data-group="weather">🌧️ ฝนตก</button>
+          <button class="chip-opt" data-group="weather">❄️ อากาศร้อน</button>
+        </div>
+      </div>
+
+      <button class="loop-btn" id="loopBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 4a8 8 0 1 0 8 8" stroke-width="2.6" stroke-linecap="round"/><path d="M20 2.5v6.5h-6.5" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        วนหาชุดใหม่ (Loop)
+      </button>
+
+      <div class="outfit-result">
+        <span class="tag">✦ ชุดที่แนะนำ · แมตช์โทนสี Tangerine & Plum</span>
+        <div class="outfit-pieces" id="outfitPieces">
+          <div class="outfit-piece" style="background:var(--mustard);"></div>
+          <div class="outfit-piece" style="background:var(--ink);"></div>
+          <div class="outfit-piece" style="background:var(--paper-2);"></div>
+        </div>
+        <p class="outfit-note" id="outfitNote">"เสื้อครอปสี Tangerine คู่กับกางเกงสแล็คสี Plum ตัดด้วยกระเป๋าสีครีมอ่อนๆ เข้ากับวันไปคาเฟ่สุดๆ"</p>
+        <div class="fb-row">
+          <button class="fb-btn" onclick="alert('บันทึกว่าไม่ใช่สไตล์ที่ต้องการ')">✕ เปลี่ยนชุด</button>
+          <button class="fb-btn" onclick="alert('บันทึกชุดนี้ไว้ในปฏิทินการแต่งตัว')">✓ ชอบลุคนี้</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<script>
+  // ปรับข้อมูล Mockup ให้เข้ากับโทนสีใหม่
+  const garments = [
+    {cat:'เสื้อด้านบน', name:'เสื้อพริ้ว Tangerine', color:'var(--mustard)', type:'top'},
+    {cat:'กางเกง', name:'สแล็คสี Plum หรูหรา', color:'var(--ink)', type:'bottom'},
+    {cat:'เสื้อคลุม', name:'คาร์ดิแกนสีครีม', color:'var(--paper)', type:'outer'},
+    {cat:'กระโปรง', name:'พลีทยาวสีชมพูตุ่น', color:'var(--sage)', type:'bottom'},
+    {cat:'เสื้อด้านบน', name:'เสื้อยืดขาวมินิมอล', color:'#FFFFFF', type:'top'},
+    {cat:'เครื่องประดับ', name:'กระเป๋าหนังสีเบจ', color:'var(--line)', type:'acc'},
+    {cat:'เสื้อด้านบน', name:'เกาะอกสีส้มเข้ม', color:'var(--mustard-dark)', type:'top'},
+    {cat:'กางเกง', name:'ยีนส์ขากระบอก', color:'#3B475F', type:'bottom'},
+  ];
+
+  const grid = document.getElementById('garmentGrid');
+  function render(filter){
+    grid.innerHTML = '';
+    garments.filter(g => filter==='all' || g.type===filter).forEach((g,i)=>{
+      const el = document.createElement('div');
+      el.className = 'garment';
+      el.innerHTML = `
+        <div class="pin"></div>
+        <div class="checkmark">✓</div>
+        <div class="swatch" style="background:${g.color}"></div>
+        <div class="info">
+          <div class="cat">${g.cat}</div>
+          <div class="name">${g.name}</div>
+        </div>`;
+      el.addEventListener('click', ()=> el.classList.toggle('selected'));
+      grid.appendChild(el);
+    });
+  }
+  render('all');
+
+  document.querySelectorAll('.filter-pill').forEach(p=>{
+    p.addEventListener('click', ()=>{
+      document.querySelectorAll('.filter-pill').forEach(x=>x.classList.remove('active'));
+      p.classList.add('active');
+      render(p.dataset.filter);
+    });
+  });
+
+  document.querySelectorAll('.chip-opt').forEach(c=>{
+    c.addEventListener('click', ()=>{
+      document.querySelectorAll(`.chip-opt[data-group="${c.dataset.group}"]`).forEach(x=>x.classList.remove('on'));
+      c.classList.add('on');
+    });
+  });
+
+  const outfitPalettes = [
+    {colors:['var(--mustard)','var(--ink)','var(--paper-2)'], note:'เสื้อครอปสี Tangerine คู่กับกางเกงสแล็คสี Plum ตัดด้วยกระเป๋าสีครีมอ่อนๆ เข้ากับวันไปคาเฟ่สุดๆ'},
+    {colors:['#FFFFFF','var(--sage)','var(--line)'], note:'เสื้อยืดขาวจับคู่กระโปรงพลีทชมพูตุ่น ลุคซอฟต์ๆ ดูแพงและเดินสบาย'},
+    {colors:['var(--paper)','#3B475F','var(--mustard)'], note:'คาร์ดิแกนครีมทับยีนส์ขากระบอก แอบมีดีเทลกระเป๋าสีส้มป๊อปอัพให้ลุคดูสนุกขึ้น'},
+    {colors:['var(--mustard-dark)','var(--ink)','#FFFFFF'], note:'เกาะอกส้มเข้มคู่กางเกงสี Plum สุดเปรี้ยว เหมาะสำหรับปาร์ตี้หรือดินเนอร์กลางคืน'},
+  ];
+  let idx = 0;
+  document.getElementById('loopBtn').addEventListener('click', ()=>{
+    idx = (idx+1) % outfitPalettes.length;
+    const p = outfitPalettes[idx];
+    document.querySelectorAll('.outfit-piece').forEach((el,i)=> el.style.background = p.colors[i]);
+    document.getElementById('outfitNote').textContent = `"${p.note}"`;
+  });
+</script>
+</body>
+</html>

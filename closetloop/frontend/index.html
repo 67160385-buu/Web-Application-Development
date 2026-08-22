@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLOSETLOOP — ตู้เสื้อผ้าที่หมุนวนไม่รู้จบ</title>
+<!-- อัปเดต Google Fonts ให้โหลดเสถียรขึ้น -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,600&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&family=Pridi:wght@400;500;600&family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* 🎨 พาเลตสีใหม่: Rose Silk & Blue Velvet */
+    --ink: #03153D;            /* Blue Velvet (สีหลัก/เข้ม) */
+    --paper: #FDF9FA;          /* ขาวอมชมพูอ่อนๆ สบายตา */
+    --paper-2: #F7EBED;        /* ชมพูอ่อน สำหรับพื้นหลังรอง */
+    --mustard: #F4AEBE;        /* Rose Silk (สีเน้น/สว่าง) */
+    --mustard-dark: #E092A3;   /* Rose Silk โทนเข้มขึ้นนิดนึงตอน Hover */
+    --sage: #8B9BB4;           /* สีเทาอมน้ำเงิน สำหรับเส้น/องค์ประกอบรอง */
+    --sage-dark: #3A4C70;      /* สีเทาอมน้ำเงินเข้ม สำหรับข้อความรอง */
+    --charcoal: #03153D;       /* สีตัวหนังสือหลัก */
+    --line: #E8D8DB;           /* สีเส้นขอบอมชมพู */
+    --white: #FFFFFF;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  
+  /* บังคับใช้ Prompt นำหน้าสุด เพื่อแก้ปัญหาฟอนต์ไทยไม่เปลี่ยน */
+  body{
+    background:var(--paper);
+    color:var(--charcoal);
+    font-family: 'Prompt', 'Inter', sans-serif;
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+  /* ใช้ Prompt ให้เหมือนหน้า Closet */
+  h1,h2,h3{
+    font-family: 'Prompt', 'Inter', sans-serif;
+    color:var(--ink);
+    font-weight:600;
+    letter-spacing:-0.01em;
+  }
+  .eyebrow{
+    font-family: 'Prompt', 'IBM Plex Mono', monospace;
+    font-size:0.75rem;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--sage-dark);
+  }
+  
+  .tag-chip, .cta-btn, .garment-card .label, .garment-card .price, .stage-num, .item .price, .item .tagpill {
+    font-family: 'Prompt', 'IBM Plex Mono', monospace;
+  }
+
+  .wrap{max-width:1180px; margin:0 auto; padding:0 32px;}
+  a{color:inherit; text-decoration:none;}
+
+  /* ---------- Nav (แก้ตามบรีฟ: ลบเส้นประ เอาหมุดออก ทำเป็นกรอบ) ---------- */
+  .line-nav{
+    position:sticky; top:0; z-index:50;
+    background:var(--paper);
+    border-bottom:1px solid var(--line);
+  }
+  .line-nav .wrap{
+    display:flex; align-items:center; justify-content:space-between;
+    height:72px; /* ลดความสูงลงนิดนึงเพราะไม่มีหมุดแล้ว */
+  }
+  .brand {
+    /* สลับเอา Inter ขึ้นก่อน เพื่อให้ทรงตัวภาษาอังกฤษดูกว้างและกลมขึ้น */
+    font-family: 'Inter', 'Prompt', sans-serif; 
+    font-weight: 800; /* ปรับความหนาให้ดูมีน้ำหนักมากขึ้น */
+    font-size: 1.3rem; 
+    letter-spacing: 0.03em; /* ขยายช่องไฟนิดนึงให้ดูคลีนขึ้น */
+    color: var(--ink);
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+    z-index: 2;
+  }
+  .brand .loop-mark{width:22px; height:22px;}
+  .tags{display:flex; gap:12px; z-index:2;}
+  
+  /* ปรับเป็นปุ่มกรอบแบบคลีนๆ */
+  .tag-chip{
+    font-size:0.8rem; font-weight:500;
+    background:var(--white); 
+    border:1px solid var(--line); 
+    border-radius:100px; /* ขอบมนเป็นแคปซูล */
+    padding:8px 18px; 
+    color:var(--ink);
+    transition:all .2s ease;
+    display:inline-block;
+  }
+  .tag-chip:hover{ 
+    border-color:var(--mustard-dark); 
+    background:var(--paper-2);
+    transform:translateY(-2px); 
+  }
+  
+  .cta-btn{
+    font-size:0.8rem; font-weight:500;
+    background:var(--ink); color:var(--white); border:none; border-radius:100px;
+    padding:9px 22px; cursor:pointer; display:inline-flex; align-items:center; gap:8px;
+    transition:background .2s ease, transform .2s ease;
+  }
+  .cta-btn:hover{ background:var(--mustard); color:var(--ink); transform:translateY(-2px); }
+  .cta-ghost{ background:transparent; color:var(--ink); border:1.5px solid var(--ink); }
+  .cta-ghost:hover{ background:var(--ink); color:var(--white); }
+
+  /* ---------- Hero (ลดขนาดตัวหนังสือ) ---------- */
+  .hero{ padding:88px 0 60px; position:relative; }
+  .hero .wrap{ display:grid; grid-template-columns:1.05fr 0.95fr; gap:56px; align-items:center; }
+  /* ลดขนาด h1 ตามบรีฟ */
+  .hero h1{ font-size:clamp(2rem, 3.5vw, 3rem); line-height:1.15; margin-bottom:18px; }
+  .hero h1 em{ font-style:italic; color:var(--mustard-dark); }
+  .hero p.lede{ font-size:1rem; color:var(--sage-dark); max-width:480px; margin-bottom:32px; }
+  .hero-ctas{ display:flex; gap:14px; flex-wrap:wrap; }
+
+  .hero-visual{ position:relative; height:420px; }
+  .clothesline-svg{ width:100%; height:100%; }
+  .garment-card{
+    position:absolute; background:var(--white); border:1px solid var(--line);
+    border-radius:6px 6px 14px 14px; box-shadow:0 10px 24px -12px rgba(3, 21, 61, 0.25);
+    padding:12px; width:132px; text-align:center; animation:sway 6s ease-in-out infinite;
+  }
+  .garment-card .swatch{ height:76px; border-radius:4px; margin-bottom:8px; }
+  .garment-card .label{ font-size:0.7rem; color:var(--sage-dark); }
+  .garment-card .price{ font-size:0.8rem; font-weight:600; color:var(--ink); margin-top:2px;}
+  
+  .gc1 .swatch { background: var(--mustard); }
+  .gc2 .swatch { background: var(--ink); }
+  .gc3 .swatch { background: var(--mustard-dark); } 
+  
+  .gc1{ top:0; left:6%; animation-delay:0s; }
+  .gc2{ top:70px; left:44%; animation-delay:1.2s; }
+  .gc3{ top:14px; left:76%; animation-delay:2.4s; }
+  @keyframes sway{ 0%,100%{ transform:rotate(-1.4deg);} 50%{ transform:rotate(1.4deg);} }
+  @media (prefers-reduced-motion: reduce){ .garment-card{ animation:none; } }
+
+  /* ---------- Journey band (ปรับสีให้อ่อนลงนิดนึง & ปรับฟอนต์) ---------- */
+  .journey{ 
+    background:#091838; /* สีสว่างขึ้นจากเดิมนิดนึงตามบรีฟ */
+    color:var(--white); padding:92px 0 96px; position:relative; overflow:hidden;
+  }
+  .journey .head{ 
+    max-width:850px; /* ขยายความกว้างเพื่อให้พิมพ์ยาวๆ ได้ */
+    margin-bottom:56px; 
+  }
+  .journey .head .eyebrow{ color:var(--mustard); }
+  /* ลดขนาดตัวหนังสือ H2 ให้เล็กลงตามบรีฟ */
+  .journey h2{ color:var(--white); font-size:clamp(1.5rem, 2.5vw, 2.1rem); line-height: 1.3; margin-top:8px;}
+  .journey p{ color:#D6DEEF; }
+
+  .rail{ position:relative; }
+  .rail::before{
+    content:""; position:absolute; top:34px; left:0; right:0; height:2px;
+    background:repeating-linear-gradient(90deg, rgba(244,174,190,0.4) 0 6px, transparent 6px 11px);
+  }
+  .stages{ display:grid; grid-template-columns:repeat(5,1fr); gap:20px; position:relative; }
+  .stage{ position:relative; padding-top:52px; }
+  .stage::before{
+    content:""; position:absolute; top:26px; left:50%; transform:translateX(-50%);
+    width:9px; height:9px; border-radius:50%; background:var(--mustard);
+    box-shadow:0 0 0 4px #102A61; /* สีเดียวกับพื้นหลังใหม่ */
+  }
+  .stage-card{
+    background:#193778; /* ปรับสีการ์ดให้เข้ากับพื้นหลังที่อ่อนลง */
+    border:1px solid #2B4E99; border-radius:6px 6px 16px 16px;
+    padding:22px 18px; height:100%; transition:transform .2s ease, border-color .2s ease;
+  }
+  .stage-card:hover{ transform:translateY(-6px); border-color:var(--mustard); }
+  .stage-num{ font-size:0.75rem; color:var(--mustard); letter-spacing:0.05em; margin-bottom: 6px;}
+  .stage-card h3{ color:var(--white); font-size:1.05rem; margin:0 0 8px; font-weight:600;}
+  .stage-card p{ font-size:0.86rem; color:#B8C6E0; margin-bottom:12px; }
+  .stage-quote{ font-family:'Pridi', serif; font-style:italic; font-size:0.84rem; color:var(--mustard); border-left:2px solid var(--mustard); padding-left:10px; }
+
+  @media (max-width:960px){
+    .stages{ grid-template-columns:1fr 1fr; }
+    .rail::before{ display:none; }
+    .stage::before{ display:none; }
+  }
+  @media (max-width:600px){ .stages{ grid-template-columns:1fr; } }
+
+  /* ---------- Features ---------- */
+  .features{ padding:96px 0; }
+  .features .wrap > .head{ max-width:600px; margin-bottom:56px; }
+  .feat-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:28px; }
+  .feat-card{
+    background:var(--white); border:1px solid var(--line); border-radius:10px; padding:30px 26px;
+    position:relative;
+  }
+  .feat-icon{ width:44px; height:44px; margin-bottom:18px; }
+  .feat-card h3{ font-size:1.12rem; margin-bottom:10px; }
+  .feat-card p{ font-size:0.92rem; color:var(--sage-dark); }
+  @media (max-width:860px){ .feat-grid{ grid-template-columns:1fr; } }
+
+  /* ---------- Marketplace strip ---------- */
+  .market{ background:var(--paper-2); padding:92px 0; }
+  .market-top{ display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:42px; gap:20px; flex-wrap:wrap;}
+  .market h2{ font-size:clamp(1.7rem,2.6vw,2.2rem); }
+  .item-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+  .item{
+    background:var(--white); border:1px solid var(--line); border-radius:6px 6px 14px 14px; overflow:hidden;
+    transition:transform .2s ease;
+  }
+  .item:hover{ transform:translateY(-5px); border-color:var(--mustard-dark); }
+  .item .swatch{ height:150px; }
+  .item .meta{ padding:14px 14px 16px; }
+  .item .name{ font-size:0.95rem; font-weight:500; color:var(--ink); margin-bottom:4px;}
+  .item .row{ display:flex; justify-content:space-between; align-items:center; margin-top:6px; }
+  .item .price{ font-weight:500; color:var(--ink); font-size:0.9rem;}
+  .item .tagpill{ font-size:0.7rem; background:var(--mustard); color:var(--ink); padding:3px 10px; border-radius:100px; font-weight:500; }
+  @media (max-width:900px){ .item-row{ grid-template-columns:repeat(2,1fr);} }
+
+  /* ---------- CTA ---------- */
+  .final-cta{ padding:110px 0; text-align:center; position:relative; }
+  .final-cta h2{ font-size:clamp(2rem,4vw,3rem); max-width:720px; margin:0 auto 26px; }
+  .final-cta p{ color:var(--sage-dark); max-width:480px; margin:0 auto 34px; font-size: 1rem; }
+
+  footer{ border-top:1px solid var(--line); padding:36px 0; }
+  footer .wrap{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;}
+  footer .eyebrow{ color:var(--sage-dark); }
+</style>
+</head>
+<body>
+
+<nav class="line-nav">
+  <div class="wrap">
+    <!-- โลโก้เป็นตัวพิมพ์ใหญ่ทั้งหมด -->
+    <div class="brand">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 4a5 5 0 1 0 5 5" stroke="var(--mustard)" stroke-width="2.4" stroke-linecap="round"/><path d="M17 3.4v5.2h-5.2" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      CLOSETLOOP
+    </div>
+    <!-- เมนูปรับเป็นแบบปุ่มกรอบ (ไม่มีหมุด) -->
+    <div class="tags">
+      <a class="tag-chip" href="#discover">ค้นหา</a>
+      <a class="tag-chip" href="closet.html">ตู้เสื้อผ้า</a>
+      <a class="tag-chip" href="closet.html#ai">AI จับคู่</a>
+      <a class="tag-chip" href="#market">ตลาดซื้อขาย</a>
+    </div>
+    <a class="cta-btn" href="closet.html">เข้าตู้เสื้อผ้า →</a>
+  </div>
+</nav>
+
+<header class="hero" id="discover">
+  <div class="wrap">
+    <div>
+      <p class="eyebrow">Virtual Closet · AI Outfit · Marketplace</p>
+      <h1>ตู้เสื้อผ้าของคุณ<br>ที่ไม่มีวันอยู่<em>เฉยๆ</em></h1>
+      <p class="lede">สแกนเสื้อผ้าที่มีเข้าตู้เสื้อผ้าดิจิทัล ให้ AI ช่วยจับคู่ชุดตามอากาศและโอกาส แล้วส่งต่อชิ้นที่ไม่ได้ใส่ให้หมุนเวียนในตลาดแลกเปลี่ยน — วนลูปไม่มีที่สิ้นสุด</p>
+      <div class="hero-ctas">
+        <a class="cta-btn" href="closet.html">เริ่มสร้างตู้เสื้อผ้า</a>
+        <a class="cta-btn cta-ghost" href="#market">ดูตลาดแลกเปลี่ยน</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <!-- รูปเสื้อผ้า (เอาเส้นราวตากผ้าออกตามที่โน้ตมาว่าไม่เอาเส้นประ) -->
+      <div class="garment-card gc1">
+        <div class="swatch"></div>
+        <div class="label">SILK BLOUSE</div>
+        <div class="price">พร้อมแลก</div>
+      </div>
+      <div class="garment-card gc2">
+        <div class="swatch"></div>
+        <div class="label">VELVET SKIRT</div>
+        <div class="price">AI แนะนำ</div>
+      </div>
+      <div class="garment-card gc3">
+        <div class="swatch"></div>
+        <div class="label">ROSE SCARF</div>
+        <div class="price">฿280</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="journey">
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">The Loop</p>
+      <!-- ขยายพื้นที่ให้พิมพ์ยาวๆ และลดขนาดฟอนต์ -->
+      <h2>5 ขั้นตอน จากเปิดแอปครั้งแรก สู่ตู้เสื้อผ้าที่หมุนวนตลอดชีวิต</h2>
+      <p>ออกแบบจาก user journey จริง — ทุกจุดคือความรู้สึกของผู้ใช้ ไม่ใช่แค่ฟีเจอร์</p>
+    </div>
+    <div class="rail">
+      <div class="stages">
+        <div class="stage">
+          <div class="stage-card">
+            <p class="stage-num">01 · DISCOVER</p>
+            <h3>เดินผ่านหรือเพื่อนแนะนำ</h3>
+            <p>เข้าเว็บไซต์ สมัครสมาชิกครั้งแรก</p>
+            <p class="stage-quote">"เว็บนี้ช่วยอะไรได้บ้าง?"</p>
+          </div>
+        </div>
+        <div class="stage">
+          <div class="stage-card">
+            <p class="stage-num">02 · BUILD CLOSET</p>
+            <h3>สร้างตู้เสื้อผ้าเสมือน</h3>
+            <p>ถ่ายรูปเสื้อผ้า แบ่งหมวดหมู่ ให้ AI เก็บออนไลน์</p>
+            <p class="stage-quote">"ต้องถ่ายรูปกี่ตัว?"</p>
+          </div>
+        </div>
+        <div class="stage">
+          <div class="stage-card">
+            <p class="stage-num">03 · AI OUTFIT</p>
+            <h3>ให้ AI จับคู่ชุด</h3>
+            <p>เลือกโอกาสและสภาพอากาศ ให้ AI แนะนำชุดที่ใช่</p>
+            <p class="stage-quote">"AI จะแนะนำได้ดีแค่ไหน?"</p>
+          </div>
+        </div>
+        <div class="stage">
+          <div class="stage-card">
+            <p class="stage-num">04 · SELL/EXCHANGE</p>
+            <h3>ปล่อยของหรือแลกเปลี่ยน</h3>
+            <p>เลือกเสื้อผ้าที่ไม่ได้ใส่แล้ว ตั้งราคาหรือโพสต์แลกเปลี่ยน</p>
+            <p class="stage-quote">"ขายเท่าไหร่ดี?"</p>
+          </div>
+        </div>
+        <div class="stage">
+          <div class="stage-card">
+            <p class="stage-num">05 · PURCHASE</p>
+            <h3>ซื้อสินค้าที่ถูกใจ</h3>
+            <p>ชำระเงินและติดตามการจัดส่งอย่างมั่นใจ</p>
+            <p class="stage-quote">"ของจะถึงเมื่อไหร่?"</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="features">
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">Opportunities</p>
+      <h2>สิ่งที่ทำให้ CLOSETLOOP ต่างจากตู้เสื้อผ้าทั่วไป</h2>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card">
+        <svg class="feat-icon" viewBox="0 0 44 44" fill="none"><rect x="6" y="10" width="32" height="26" rx="4" stroke="var(--ink)" stroke-width="2"/><path d="M6 18h32" stroke="var(--ink)" stroke-width="2"/><circle cx="15" cy="14" r="1.6" fill="var(--ink)"/></svg>
+        <h3>อัปโหลดครั้งเดียว ใช้ได้ตลอด</h3>
+        <p>หน้าแรกพร้อมยูสเซอร์ไกด์และวิดีโอสาธิต ลดความลังเลตอนเข้าเว็บครั้งแรก</p>
+      </div>
+      <div class="feat-card">
+        <svg class="feat-icon" viewBox="0 0 44 44" fill="none"><circle cx="22" cy="22" r="15" stroke="var(--mustard)" stroke-width="2"/><path d="M22 14v8l6 4" stroke="var(--mustard)" stroke-width="2" stroke-linecap="round"/></svg>
+        <h3>แต่งรูปและเพิ่มเสื้อผ้าไวขึ้น</h3>
+        <p>ระบบแนะนำมุมถ่ายและตัดพื้นหลังอัตโนมัติ ให้ตู้เสื้อผ้าดิจิทัลดูเป็นระเบียบ</p>
+      </div>
+      <div class="feat-card">
+        <svg class="feat-icon" viewBox="0 0 44 44" fill="none"><path d="M22 8a10 10 0 1 0 10 10" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round"/><path d="M32 6v8h-8" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <h3>เรียนรู้จากสไตล์ของผู้ใช้เอง</h3>
+        <p>AI แม่นยำขึ้นทุกครั้งที่กด "ชอบ" หรือ "ไม่ใช่" กับชุดที่แนะนำ</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="market" id="market">
+  <div class="wrap">
+    <div class="market-top">
+      <div>
+        <p class="eyebrow">Sell / Exchange · Purchase</p>
+        <h2>ตลาดหมุนเวียนเสื้อผ้าจากตู้จริง</h2>
+      </div>
+      <a class="cta-btn cta-ghost" href="closet.html">ปล่อยเสื้อผ้าของคุณ</a>
+    </div>
+    <div class="item-row">
+      <div class="item">
+        <div class="swatch" style="background:var(--mustard);"></div>
+        <div class="meta">
+          <div class="name">เสื้อไหมพรม Rose Silk</div>
+          <div class="row"><span class="price">฿350</span><span class="tagpill">ใส่ 2 ครั้ง</span></div>
+        </div>
+      </div>
+      <div class="item">
+        <div class="swatch" style="background:var(--ink);"></div>
+        <div class="meta">
+          <div class="name">เดรส Blue Velvet</div>
+          <div class="row"><span class="price">แลกได้</span><span class="tagpill">ไซส์ M</span></div>
+        </div>
+      </div>
+      <div class="item">
+        <div class="swatch" style="background:var(--mustard-dark);"></div>
+        <div class="meta">
+          <div class="name">กระโปรงพลีทชมพูตุ่น</div>
+          <div class="row"><span class="price">฿420</span><span class="tagpill">มือ 1</span></div>
+        </div>
+      </div>
+      <div class="item">
+        <div class="swatch" style="background:var(--sage);"></div>
+        <div class="meta">
+          <div class="name">เสื้อคลุมคาร์ดิแกน</div>
+          <div class="row"><span class="price">฿180</span><span class="tagpill">ใส่ 1 ครั้ง</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="final-cta">
+  <div class="wrap">
+    <h2>เริ่มหมุนตู้เสื้อผ้าของคุณวันนี้</h2>
+    <p>ไม่ต้องมีเสื้อผ้าเยอะ แค่รู้ว่าจะใส่อะไรให้คุ้มที่สุด</p>
+    <a class="cta-btn" href="closet.html">สร้างตู้เสื้อผ้าเสมือนฟรี</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="brand" style="font-size:1rem;">CLOSETLOOP</div>
+    <p class="eyebrow">© 2026 · Virtual Closet, AI Outfit Matching, Marketplace</p>
+  </div>
+</footer>
+
+</body>
+</html>
